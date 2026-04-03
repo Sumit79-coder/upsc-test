@@ -1,0 +1,139 @@
+{% extends "base.html" %}
+{% block title %}Analytics - {{ test.name }}{% endblock %}
+{% block content %}
+<div class="mb-4">
+    <a href="{{ url_for('admin') }}" class="btn btn-outline-secondary btn-sm">
+        <i class="bi bi-arrow-left"></i> Back to Admin
+    </a>
+    <h3 class="mt-2">{{ test.name }} - Analytics</h3>
+</div>
+
+<!-- Summary Cards -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <h2 class="text-primary">{{ responses|length }}</h2>
+                <p class="text-muted mb-0">Total Responses</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <h2 class="text-info">{{ avg_score }}</h2>
+                <p class="text-muted mb-0">Average Score</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <h2 class="text-success">{{ max_score }}</h2>
+                <p class="text-muted mb-0">Highest Score</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <h2 class="text-danger">{{ min_score }}</h2>
+                <p class="text-muted mb-0">Lowest Score</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Responses Table -->
+<div class="card mb-4">
+    <div class="card-header"><h5 class="mb-0">All Responses</h5></div>
+    <div class="card-body">
+        {% if responses %}
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Score</th>
+                        <th>Correct</th>
+                        <th>Wrong</th>
+                        <th>Unanswered</th>
+                        <th>Time</th>
+                        <th>Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for r in responses %}
+                    <tr>
+                        <td>{{ loop.index }}</td>
+                        <td>{{ r.candidate_name }}</td>
+                        <td>{{ r.candidate_email }}</td>
+                        <td><strong>{{ r.score }}</strong></td>
+                        <td class="text-success">{{ r.correct_count }}</td>
+                        <td class="text-danger">{{ r.wrong_count }}</td>
+                        <td>{{ test.total_questions - r.total_attempted }}</td>
+                        <td>{{ (r.time_taken_seconds // 60) }}m {{ (r.time_taken_seconds % 60) }}s</td>
+                        <td>{{ r.submitted_at.strftime('%d %b %Y, %I:%M %p') }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <p class="text-muted text-center">No responses yet.</p>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Question-wise Accuracy -->
+<div class="card mb-4">
+    <div class="card-header"><h5 class="mb-0">Question-wise Accuracy</h5></div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-sm">
+                <thead>
+                    <tr>
+                        <th>Q. No</th>
+                        <th>Correct Answer</th>
+                        <th>Attempted By</th>
+                        <th>Accuracy</th>
+                        <th>Difficulty</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for q in questions %}
+                    {% set acc = q_accuracy.get(q.question_number, {}) %}
+                    <tr>
+                        <td>{{ q.question_number }}</td>
+                        <td>{{ q.correct_answer }})</td>
+                        <td>{{ acc.get('attempted', 0) }}</td>
+                        <td>
+                            <div class="progress" style="height: 20px; min-width: 100px;">
+                                <div class="progress-bar
+                                    {% if acc.get('accuracy', 0) >= 70 %}bg-success
+                                    {% elif acc.get('accuracy', 0) >= 40 %}bg-warning
+                                    {% else %}bg-danger{% endif %}"
+                                    style="width: {{ acc.get('accuracy', 0) }}%">
+                                    {{ acc.get('accuracy', 0) }}%
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            {% if acc.get('accuracy', 0) >= 70 %}
+                            <span class="badge bg-success">Easy</span>
+                            {% elif acc.get('accuracy', 0) >= 40 %}
+                            <span class="badge bg-warning text-dark">Medium</span>
+                            {% else %}
+                            <span class="badge bg-danger">Hard</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

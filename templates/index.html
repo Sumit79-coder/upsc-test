@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}Available Tests - UPSC Test Platform{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <h2 class="mb-4">Available Tests</h2>
+
+        {% if tests %}
+        <div class="row">
+            {% for test in tests %}
+            <div class="col-md-6 mb-4">
+                <div class="card test-card h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ test.name }}</h5>
+                        <div class="test-info">
+                            <span><i class="bi bi-question-circle"></i> {{ test.total_questions }} Questions</span>
+                            <span><i class="bi bi-clock"></i> {{ test.duration_minutes }} Minutes</span>
+                            <span><i class="bi bi-plus-circle text-success"></i> +{{ test.marks_correct }} per correct</span>
+                            <span><i class="bi bi-dash-circle text-danger"></i> -{{ test.marks_negative }} per wrong</span>
+                        </div>
+                    </div>
+                    <div class="card-footer">
+                        <a href="{{ url_for('login', test_id=test.id) }}" class="btn btn-primary w-100">
+                            <i class="bi bi-play-fill"></i> Start Test
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="text-center py-5">
+            <i class="bi bi-inbox" style="font-size: 3rem; color: #ccc;"></i>
+            <p class="mt-3 text-muted">No tests available yet. Ask the admin to upload a test.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

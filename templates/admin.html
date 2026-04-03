@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+{% block title %}Admin - UPSC Test Platform{% endblock %}
+{% block content %}
+<div class="row">
+    <div class="col-lg-6">
+        <div class="card mb-4">
+            <div class="card-header bg-dark text-white">
+                <h5 class="mb-0"><i class="bi bi-upload"></i> Upload New Test</h5>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('admin_upload') }}" enctype="multipart/form-data">
+                    <div class="mb-3">
+                        <label class="form-label">Test Name</label>
+                        <input type="text" class="form-control" name="test_name" required
+                               placeholder="e.g., PTS 2026 GS Simulator Test 2">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Duration (minutes)</label>
+                        <input type="number" class="form-control" name="duration" value="120" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Question Paper PDF</label>
+                        <input type="file" class="form-control" name="question_pdf" accept=".pdf" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Answer Key PDF</label>
+                        <input type="file" class="form-control" name="answer_pdf" accept=".pdf" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="bi bi-cloud-upload"></i> Upload & Parse
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-6">
+        <div class="card">
+            <div class="card-header bg-dark text-white">
+                <h5 class="mb-0"><i class="bi bi-list-check"></i> Existing Tests</h5>
+            </div>
+            <div class="card-body">
+                {% if tests %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Test Name</th>
+                                <th>Questions</th>
+                                <th>Responses</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for test in tests %}
+                            <tr>
+                                <td>{{ test.name }}</td>
+                                <td>{{ test.total_questions }}</td>
+                                <td>{{ test.responses|length }}</td>
+                                <td>
+                                    <a href="{{ url_for('admin_responses', test_id=test.id) }}"
+                                       class="btn btn-sm btn-outline-primary">
+                                        <i class="bi bi-bar-chart"></i> Analytics
+                                    </a>
+                                    <form method="POST" action="{{ url_for('admin_delete_test', test_id=test.id) }}"
+                                          class="d-inline" onsubmit="return confirm('Delete this test?')">
+                                        <button class="btn btn-sm btn-outline-danger">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <p class="text-muted text-center py-3">No tests uploaded yet.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

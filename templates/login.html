@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}Login - {{ test.name }}{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-5">
+        <div class="card mt-5">
+            <div class="card-header bg-primary text-white text-center">
+                <h4 class="mb-0">{{ test.name }}</h4>
+            </div>
+            <div class="card-body">
+                <div class="test-info-box mb-4">
+                    <p><i class="bi bi-question-circle"></i> <strong>{{ test.total_questions }}</strong> Questions</p>
+                    <p><i class="bi bi-clock"></i> <strong>{{ test.duration_minutes }}</strong> Minutes</p>
+                    <p><i class="bi bi-plus-circle text-success"></i> +{{ test.marks_correct }} marks for correct answer</p>
+                    <p><i class="bi bi-dash-circle text-danger"></i> -{{ test.marks_negative }} marks for wrong answer</p>
+                    <p><i class="bi bi-circle text-secondary"></i> 0 marks for unanswered</p>
+                </div>
+
+                <form method="POST">
+                    <div class="mb-3">
+                        <label for="name" class="form-label">Full Name</label>
+                        <input type="text" class="form-control" id="name" name="name" required placeholder="Enter your name">
+                    </div>
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Email Address</label>
+                        <input type="email" class="form-control" id="email" name="email" required placeholder="Enter your email">
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100 btn-lg">
+                        <i class="bi bi-play-fill"></i> Start Test
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

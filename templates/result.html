@@ -1,0 +1,121 @@
+{% extends "base.html" %}
+{% block title %}Result - {{ test.name }}{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-10">
+        <!-- Score Card -->
+        <div class="card score-card mb-4">
+            <div class="card-body text-center">
+                <h3>{{ test.name }}</h3>
+                <p class="text-muted">{{ response.candidate_name }} ({{ response.candidate_email }})</p>
+
+                <div class="score-display">
+                    <div class="score-main">
+                        <span class="score-number">{{ response.score }}</span>
+                        <span class="score-total">/ {{ max_marks }}</span>
+                    </div>
+                </div>
+
+                <div class="row mt-4">
+                    <div class="col-3">
+                        <div class="stat-box">
+                            <div class="stat-number text-success">{{ response.correct_count }}</div>
+                            <div class="stat-label">Correct</div>
+                        </div>
+                    </div>
+                    <div class="col-3">
+                        <div class="stat-box">
+                            <div class="stat-number text-danger">{{ response.wrong_count }}</div>
+                            <div class="stat-label">Wrong</div>
+                        </div>
+                    </div>
+                    <div class="col-3">
+                        <div class="stat-box">
+                            <div class="stat-number text-secondary">{{ test.total_questions - response.total_attempted }}</div>
+                            <div class="stat-label">Unanswered</div>
+                        </div>
+                    </div>
+                    <div class="col-3">
+                        <div class="stat-box">
+                            <div class="stat-number text-primary">{{ response.total_attempted }}</div>
+                            <div class="stat-label">Attempted</div>
+                        </div>
+                    </div>
+                </div>
+
+                {% set mins = response.time_taken_seconds // 60 %}
+                {% set secs = response.time_taken_seconds % 60 %}
+                <p class="mt-3 text-muted">Time taken: {{ mins }}m {{ secs }}s</p>
+            </div>
+        </div>
+
+        <!-- Question-wise Breakdown -->
+        <h4 class="mb-3">Answer Key & Explanations</h4>
+
+        {% for q in questions %}
+        {% set user_ans = answers.get(q.question_number|string) %}
+        {% set is_correct = user_ans == q.correct_answer %}
+        {% set is_unanswered = not user_ans %}
+
+        <div class="card mb-3 result-question {% if is_unanswered %}border-secondary{% elif is_correct %}border-success{% else %}border-danger{% endif %}">
+            <div class="card-header {% if is_unanswered %}bg-light{% elif is_correct %}bg-success text-white{% else %}bg-danger text-white{% endif %}">
+                <div class="d-flex justify-content-between align-items-center">
+                    <strong>Q.{{ q.question_number }}</strong>
+                    {% if is_unanswered %}
+                    <span class="badge bg-secondary">Unanswered</span>
+                    {% elif is_correct %}
+                    <span class="badge bg-light text-success">+{{ test.marks_correct }} marks</span>
+                    {% else %}
+                    <span class="badge bg-light text-danger">-{{ test.marks_negative }} marks</span>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="card-body">
+                <p class="question-text">{{ q.question_text }}</p>
+
+                <div class="options-result">
+                    {% for letter, text in [('a', q.option_a), ('b', q.option_b), ('c', q.option_c), ('d', q.option_d)] %}
+                    <div class="option-result
+                        {% if letter == q.correct_answer %}option-correct{% endif %}
+                        {% if letter == user_ans and letter != q.correct_answer %}option-wrong{% endif %}">
+                        <span class="option-letter">{{ letter }})</span> {{ text }}
+                        {% if letter == q.correct_answer %}
+                        <i class="bi bi-check-circle-fill text-success ms-2"></i>
+                        {% endif %}
+                        {% if letter == user_ans and letter != q.correct_answer %}
+                        <i class="bi bi-x-circle-fill text-danger ms-2"></i>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+
+                {% if user_ans and user_ans != q.correct_answer %}
+                <p class="mt-2"><strong>Your answer:</strong> <span class="text-danger">{{ user_ans }})</span> | <strong>Correct answer:</strong> <span class="text-success">{{ q.correct_answer }})</span></p>
+                {% elif is_unanswered %}
+                <p class="mt-2"><strong>Correct answer:</strong> <span class="text-success">{{ q.correct_answer }})</span></p>
+                {% endif %}
+
+                {% if q.explanation %}
+                <div class="explanation mt-3">
+                    <button class="btn btn-outline-info btn-sm" type="button" data-bs-toggle="collapse" data-bs-target="#exp{{ q.question_number }}">
+                        <i class="bi bi-lightbulb"></i> Show Explanation
+                    </button>
+                    <div class="collapse mt-2" id="exp{{ q.question_number }}">
+                        <div class="card card-body explanation-text">
+                            {{ q.explanation }}
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+
+        <div class="text-center mb-5">
+            <a href="{{ url_for('index') }}" class="btn btn-primary">
+                <i class="bi bi-house"></i> Back to Home
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}
