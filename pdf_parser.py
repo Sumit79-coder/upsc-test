@@ -32,10 +32,47 @@ def clean_text(text):
     text = re.sub(r'Canal Road,.*?(?=\n|$)', '', text)
     text = re.sub(r'usa Road,.*?(?=\n|$)', '', text)
     text = re.sub(r'RTC X Rd,.*?(?=\n|$)', '', text)
-    text = re.sub(r'admissions@.*?(?=\n|$)', '', text)
+    text = re.sub(r'[a-z]*missions@.*?(?=\n|$)', '', text)
     text = re.sub(r'helpdesk@.*?(?=\n|$)', '', text)
-    text = re.sub(r'https://academy\.forumias\.com', '', text)
+    text = re.sub(r'https?://academy\.forumias\.com', '', text)
+    text = re.sub(r'\|?\s*PTS 2026.*?(?=\n|$)', '', text)
+    text = re.sub(r'Karol Bagh,.*?(?=\n|$)', '', text)
+    text = re.sub(r'Test Code:.*?(?=\n|$)', '', text)
+    text = re.sub(r'Bihar \d+.*?(?=\n|$)', '', text)
+    text = re.sub(r'Telangana \d+.*?(?=\n|$)', '', text)
+    text = re.sub(r'New Delhi.*?(?=\n|$)', '', text)
     return text
+
+
+def format_question_text(text):
+    """Format question text: preserve line breaks for Roman numeral statements."""
+    # First collapse all whitespace into single spaces
+    text = ' '.join(text.split())
+    # Insert line breaks before Roman numeral statements (I., II., III., IV., V.)
+    text = re.sub(r'\s+(I{1,3}V?|IV|V)\.\s+', r'\n\1. ', text)
+    # Insert line break before "Select the correct...", "Which of the...", "How many..."
+    text = re.sub(r'\s+(Select the correct\s)', r'\n\1', text)
+    text = re.sub(r'\s+(Which of the (?:statements|pairs|above))', r'\n\1', text)
+    text = re.sub(r'\s+(How many of the (?:above|pairs|statements))', r'\n\1', text)
+    text = re.sub(r'\s+(Choose the correct\s)', r'\n\1', text)
+    text = re.sub(r'\s+(Using the code)', r'\n\1', text)
+    return text.strip()
+
+
+def clean_option_text(text):
+    """Clean option text: collapse whitespace, remove any footer fragments."""
+    text = ' '.join(text.split())
+    # Remove any remaining footer fragments in options
+    text = re.sub(r'\s*[a-z]*missions@\S+.*$', '', text)
+    text = re.sub(r'\s*\|?\s*PTS 2026.*$', '', text)
+    text = re.sub(r'\s*Test Code:.*$', '', text)
+    text = re.sub(r'\s*Canal Road.*$', '', text)
+    text = re.sub(r'\s*Karol Bagh.*$', '', text)
+    text = re.sub(r'\s*Bihar \d+.*$', '', text)
+    text = re.sub(r'\s*Telangana \d+.*$', '', text)
+    text = re.sub(r'\s*New Delhi.*$', '', text)
+    text = re.sub(r'\s*Plot No\..*$', '', text)
+    return text.strip()
 
 
 def parse_questions(pdf_path):
@@ -63,10 +100,10 @@ def parse_questions(pdf_path):
         for j in range(1, len(option_splits) - 1, 2):
             letter = option_splits[j]
             opt_text = option_splits[j + 1].strip()
-            opt_text = ' '.join(opt_text.split())
+            opt_text = clean_option_text(opt_text)
             options[letter] = opt_text
 
-        question_text = ' '.join(question_text.split())
+        question_text = format_question_text(question_text)
 
         questions.append({
             'number': q_num,
