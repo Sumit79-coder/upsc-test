@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% block title %}My Results - UPSC Test Platform{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <h2 class="mb-4">My Results</h2>
+
+        <div class="card mb-4">
+            <div class="card-body">
+                <form method="POST">
+                    <div class="input-group">
+                        <input type="email" class="form-control" name="email" placeholder="Enter your email to view results"
+                               value="{{ email or '' }}" required>
+                        <button class="btn btn-primary" type="submit">
+                            <i class="bi bi-search"></i> Find Results
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        {% if responses is not none %}
+            {% if responses %}
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Test Name</th>
+                            <th>Score</th>
+                            <th>Correct</th>
+                            <th>Wrong</th>
+                            <th>Date</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for r in responses %}
+                        <tr>
+                            <td>{{ r.test.name }}</td>
+                            <td><strong>{{ r.score }}</strong> / {{ r.test.total_questions * r.test.marks_correct }}</td>
+                            <td class="text-success">{{ r.correct_count }}</td>
+                            <td class="text-danger">{{ r.wrong_count }}</td>
+                            <td>{{ r.submitted_at.strftime('%d %b %Y') }}</td>
+                            <td>
+                                <a href="{{ url_for('result', response_id=r.id) }}" class="btn btn-sm btn-outline-primary">
+                                    <i class="bi bi-eye"></i> View
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% endif %}
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

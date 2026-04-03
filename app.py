@@ -140,6 +140,22 @@ def result(response_id):
                            max_marks=max_marks)
 
 
+@app.route('/my-results', methods=['GET', 'POST'])
+def my_results():
+    if request.method == 'POST':
+        email = request.form.get('email', '').strip()
+        if not email:
+            flash('Please enter your email.', 'error')
+            return render_template('my_results.html', responses=None)
+
+        responses = Response.query.filter_by(candidate_email=email).order_by(Response.submitted_at.desc()).all()
+        if not responses:
+            flash('No results found for this email.', 'info')
+        return render_template('my_results.html', responses=responses, email=email)
+
+    return render_template('my_results.html', responses=None)
+
+
 # --- Admin Routes ---
 
 @app.route('/admin')
